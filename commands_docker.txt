@@ -1,0 +1,103 @@
+docker run ngix // execute (le telecharge s il n exite pas) l image
+docker ps // list all ranning containers
+		 // each container get a random name and  id 
+		 
+docker ps -a // all container , olso not ranning one
+
+docker stop name/id // to stop container
+
+docker rm name // remove a container
+
+################################### images ############################
+###################################################################
+
+docker images // list of images
+docker rmi name // remove image
+docker pull image // get it and install it without runing
+
+################################### runing commands ############################
+###################################################################
+docker run ubuntu sleep 5
+docker exec name cat /etc/hosts 
+
+
+docker run my_app
+
+
+docker run -d my_app // the co will continue to run in the back
+docker attach id //
+
+
+
+############################################################################"
+###################### pour la formation microservice ######################
+#############################################################################
+
+docker pull rabbitmq:3.11.9 // recuperation de limage
+docker run --rm -it -p 5672:5672 rabbitmq:3.11.9 // start rabitmq on port 5672
+
+############################################################################"
+###################### build docker image for demo ######################
+#############################################################################
+
+docker build -t springboot-docker-demo:0.1.RELEASE .  // build image with tag
+
+docker run -p 8081:8080 springboot-docker-demo // container has it private network, we need to expose the port to OS (portOfOS:portOfContainer MAP port container to OS)
+												// URL Access : http://localhost:8081/docker
+
+docker run -d -p 8081:8080 springboot-docker-demo // -d : Run container in detached mode (backgrund)
+												 // id : d0de4aceaf79cdac2c55101c9161c96ec20e5b3257e6c584393b0420ba0d4d21
+												 
+docker logs -f d0de4aceaf79cdac2c55101c9161c96ec20e5b3257e6c584393b0420ba0d4d21 // to see log
+
+docker ps  // list of runing container
+
+docker stop id
+
+##""""""""" push docker image for demo ##
+
+docker login  // to connect to docker hub
+
+docker tag springboot-docker-demo lwahbi/springboot-docker-demo:0.1.RELEASE // we associated the image springboot-docker-demo with repository ID in docker hub lwahbi/springboot-docker-demo
+
+docker push lwahbi/springboot-docker-demo:0.1.RELEASE // push this image (lwahbi/springboot-docker-demo) to docker hub
+
+#################### pull docker image for demo ###################"##
+
+docker pull lwahbi/springboot-docker-demo:0.1.REALEASE
+docker pull mysql:latest // ...
+
+// run mysql image and creat DB (attention my container name is localhost [--name localhost] )
+
+docker run -p 3307:3306 --name localhost -e MYSQL_ROOT_PASSWORD=Mysql@123 -e MYSQL_DATABASE=employee_db -e MYSQL_USER=lwahbi -e MYSQL_PASSWORD -d mysql:latest
+docker logs -f localhost // CTR C to exite
+
+docker exec -it localhost bash // tap exit to exit
+		mysql -u root -p // to connet
+		
+		show databases;
+
+############################################################################"
+###################### Dockering spring boot mysql crud step by step ######################
+#############################################################################
+
+docker pull mysql
+docker network create springboot-mysql-net   // creating docker network, beacause we need mysql container communicate with spring bout crud container, we nedd to deploy him in the same network
+docker network ls
+docker run --name mysqldb --network springboot-mysql-net -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=employeedb -d mysql 
+	// -name : to provide container name; -d : docker image name
+docker ps // all stated container
+docker exec -it id bash
+docker build -t springboot-restfull-webservices . 
+docker run --network springboot-mysql-net --name springboot-mysql-container -p 8080:8080 springboot-restfull-webservices // on l execute sur le meme network que la base mysql
+docker logs -f 081356 to see log
+
+
+#############################################################################################################################
+########### Docker compose : is tool for defining and running multi-container Docker applicayions #############################
+###############################################################################################################################
+
+docker-compose up -d // after configuring docher-compose.yml (this commande = pull + deploy container)
+docker-compose down // to stop all rannunig container in background
+
+ docker-compose up -d --build // with 2 contauner : mysql and springboot-restful-webservices
